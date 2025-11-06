@@ -128,18 +128,9 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <div className="header-content">
-          <div>
-            <h1>⛳ Golf Course Finder</h1>
-            <p>Search for golf courses across the United States</p>
-          </div>
-          <div className="user-info">
-            <span>Welcome, {user.name}!</span>
-            <button onClick={handleLogout} className="logout-btn">
-              Logout
-            </button>
-          </div>
-        </div>
+        <h1>⛳ Golf Course Finder</h1>
+        <p>Search for golf courses across the United States</p>
+        
       </header>
       
       <main>
