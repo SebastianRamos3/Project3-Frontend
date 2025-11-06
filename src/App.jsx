@@ -1,35 +1,53 @@
 import { useState } from 'react';
 import './App.css';
 import CourseSearch from './components/CourseSearch';
+import { signup, login } from './services/authService';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [showSignup, setShowSignup] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+    
     const email = e.target.email.value;
     const password = e.target.password.value;
     
-    // Simple fake login - no backend needed yet
-    // In real app, you'd verify credentials here
-    setUser({ email, name: email.split('@')[0] });
-    setIsLoggedIn(true);
+    try {
+      const userData = await login(email, password);
+      setUser(userData);
+      setIsLoggedIn(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+    
     const name = e.target.name.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
     
-    // Simple fake signup - no backend needed yet
-    // In real app, you'd create account in database here
-    alert(`Account created for ${name}! Now logging you in...`);
-    setUser({ email, name });
-    setIsLoggedIn(true);
-    setShowSignup(false);
+    try {
+      const userData = await signup(name, email, password);
+      setUser(userData);
+      setIsLoggedIn(true);
+      setShowSignup(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = () => {
@@ -45,6 +63,8 @@ function App() {
           <div className="login-box">
             <h1>⛳ Create Account</h1>
             <p>Join Golf Course Tracker</p>
+            
+            {error && <div className="error-box">{error}</div>}
             
             <form onSubmit={handleSignup} className="login-form">
               <input
@@ -62,17 +82,22 @@ function App() {
               <input
                 type="password"
                 name="password"
-                placeholder="Password"
+                placeholder="Password (min 6 characters)"
                 minLength="6"
                 required
               />
-              <button type="submit">Create Account</button>
+              <button type="submit" disabled={loading}>
+                {loading ? 'Creating Account...' : 'Create Account'}
+              </button>
             </form>
             
             <p className="login-note">
               Already have an account?{' '}
               <button 
-                onClick={() => setShowSignup(false)} 
+                onClick={() => {
+                  setShowSignup(false);
+                  setError('');
+                }} 
                 className="link-btn"
               >
                 Sign In
@@ -93,6 +118,8 @@ function App() {
             <h1>⛳ Golf Course Tracker</h1>
             <p>Sign in to continue</p>
             
+            {error && <div className="error-box">{error}</div>}
+            
             <form onSubmit={handleLogin} className="login-form">
               <input
                 type="email"
@@ -106,13 +133,18 @@ function App() {
                 placeholder="Password"
                 required
               />
-              <button type="submit">Sign In</button>
+              <button type="submit" disabled={loading}>
+                {loading ? 'Signing In...' : 'Sign In'}
+              </button>
             </form>
             
             <p className="login-note">
               Don't have an account?{' '}
               <button 
-                onClick={() => setShowSignup(true)} 
+                onClick={() => {
+                  setShowSignup(true);
+                  setError('');
+                }} 
                 className="link-btn"
               >
                 Create Account
