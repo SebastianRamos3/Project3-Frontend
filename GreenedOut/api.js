@@ -1,17 +1,8 @@
-// API Service for connecting to Spring Boot backend
-
-// API Configuration
-// For iOS Simulator, you may need to use your Mac's IP instead of localhost
 const API_BASE_URL = 'http://10.0.0.224:8080/api';
 
-// If the above doesn't work, try:
-// const API_BASE_URL = 'http://localhost:8080/api';
 
 console.log('API Base URL:', API_BASE_URL);
 
-/**
- * Generic fetch wrapper with error handling
- */
 async function apiFetch(endpoint, options = {}) {
   try {
     const url = `${API_BASE_URL}${endpoint}`;
@@ -37,13 +28,7 @@ async function apiFetch(endpoint, options = {}) {
   }
 }
 
-// ============================================
-// COURSE API ENDPOINTS
-// ============================================
 
-/**
- * Get all courses
- */
 export async function getAllCourses() {
   return apiFetch('/courses');
 }
