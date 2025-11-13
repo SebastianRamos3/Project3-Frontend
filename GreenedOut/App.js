@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import HomeScreen from './screens/HomeScreen';
 import SearchScreen from './screens/SearchScreen';
-import LogGameScreen from './screens/LogGameScreen'; // ⬅️ NEW
+import LogGameScreen from './screens/LogGameScreen'; 
 
 const Stack = createStackNavigator();
 
