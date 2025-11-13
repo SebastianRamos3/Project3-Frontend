@@ -9,48 +9,26 @@ import {
   Platform 
 } from 'react-native';
 
-// Replace this with your actual backend API call if you have one
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-
 export default function LogGameScreen({ route, navigation }) {
-  const course = route.params?.course || {}; // <--- course object passed from Search screen
+  const course = route?.params?.course || {};
 
-  // Basic form state
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10)); // YYYY-MM-DD
   const [holes, setHoles] = useState(String(course.numHoles || 18));
   const [score, setScore] = useState('');
   const [notes, setNotes] = useState('');
 
-  const handleSubmit = async () => {
-    try {
-      const payload = {
-        courseId: course.id,
-        date,
-        holes: Number(holes),
-        score: score ? Number(score) : undefined,
-        notes: notes || undefined,
-      };
-
-      const res = await fetch(`${API_BASE_URL}/api/games`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
-
-      Alert.alert('Success', 'Your round has been logged!');
-      navigation.goBack();
-    } catch (err) {
-      console.error('Error saving game:', err);
-      Alert.alert('Error', err.message || 'Failed to log the round.');
-    }
+  const handleSave = () => {
+    Alert.alert(
+      'Placeholder Action',
+      `This would save a round at "${course.name}" on ${date}.\n\nHoles: ${holes}${score ? `\nScore: ${score}` : ''}${notes ? `\nNotes: ${notes}` : ''}`,
+      [{ text: 'OK', onPress: () => navigation.goBack() }]
+    );
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Log a Round</Text>
-      <Text style={styles.subtitle}>{course.name}</Text>
+      <Text style={styles.subtitle}>{course.name || 'Selected course'}</Text>
 
       <View style={styles.formGroup}>
         <Text style={styles.label}>Date</Text>
@@ -63,7 +41,7 @@ export default function LogGameScreen({ route, navigation }) {
       </View>
 
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Holes Played</Text>
+        <Text style={styles.label}>Holes</Text>
         <TextInput
           style={styles.input}
           value={holes}
@@ -94,7 +72,7 @@ export default function LogGameScreen({ route, navigation }) {
         />
       </View>
 
-      <Pressable style={styles.button} onPress={handleSubmit}>
+      <Pressable style={styles.button} onPress={handleSave}>
         <Text style={styles.buttonText}>Save Round</Text>
       </Pressable>
     </View>
