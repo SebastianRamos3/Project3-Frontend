@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://10.0.0.224:8080/api';
+const API_BASE_URL = typeof window !== 'undefined' 
+  ? 'http://localhost:8080/api'
+  : 'http://10.0.0.200:8080/api';
 
 
 console.log('API Base URL:', API_BASE_URL);
@@ -7,6 +9,7 @@ async function apiFetch(endpoint, options = {}) {
   try {
     const url = `${API_BASE_URL}${endpoint}`;
     console.log('Fetching:', url);
+    console.log('Request options:', JSON.stringify(options, null, 2));
     
     const response = await fetch(url, {
       headers: {
@@ -16,14 +19,20 @@ async function apiFetch(endpoint, options = {}) {
       ...options,
     });
 
+
     if (!response.ok) {
       const errorText = await response.text();
+      console.error('API Error Response:', errorText);
       throw new Error(`API Error: ${response.status} - ${errorText}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log('API Response data:', JSON.stringify(data, null, 2));
+    return data;
   } catch (error) {
     console.error('API Fetch Error:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     throw error;
   }
 }
@@ -33,42 +42,22 @@ export async function getAllCourses() {
   return apiFetch('/courses');
 }
 
-/**
- * Search courses by name
- * @param {string} searchQuery - The search term
- */
 export async function searchCourses(searchQuery) {
   return apiFetch(`/courses/search?name=${encodeURIComponent(searchQuery)}`);
 }
 
-/**
- * Get course by ID
- * @param {number} id - Course ID
- */
 export async function getCourseById(id) {
   return apiFetch(`/courses/${id}`);
 }
 
-/**
- * Get courses by city
- * @param {string} city - City name
- */
 export async function getCoursesByCity(city) {
   return apiFetch(`/courses/city/${encodeURIComponent(city)}`);
 }
 
-/**
- * Get courses by state
- * @param {string} state - State name
- */
 export async function getCoursesByState(state) {
   return apiFetch(`/courses/state/${encodeURIComponent(state)}`);
 }
 
-/**
- * Create a new course
- * @param {object} courseData - Course object
- */
 export async function createCourse(courseData) {
   return apiFetch('/courses', {
     method: 'POST',
@@ -76,11 +65,6 @@ export async function createCourse(courseData) {
   });
 }
 
-/**
- * Update a course
- * @param {number} id - Course ID
- * @param {object} courseData - Updated course object
- */
 export async function updateCourse(id, courseData) {
   return apiFetch(`/courses/${id}`, {
     method: 'PUT',
@@ -88,58 +72,28 @@ export async function updateCourse(id, courseData) {
   });
 }
 
-/**
- * Delete a course
- * @param {number} id - Course ID
- */
 export async function deleteCourse(id) {
   return apiFetch(`/courses/${id}`, {
     method: 'DELETE',
   });
 }
 
-/**
- * Get total count of courses
- */
 export async function getCoursesCount() {
   return apiFetch('/courses/count');
 }
 
-// ============================================
-// GOLF API (External API) ENDPOINTS
-// ============================================
-
-/**
- * Import courses from external Golf API
- * @param {string} searchQuery - Search term for external API
- */
 export async function importCoursesFromExternalApi(searchQuery) {
   return apiFetch(`/golf-api/import?search=${encodeURIComponent(searchQuery)}`);
 }
 
-/**
- * Fetch a specific course from external API
- * @param {number} courseId - External course ID
- */
 export async function fetchExternalCourse(courseId) {
   return apiFetch(`/golf-api/fetch/${courseId}`);
 }
 
-/**
- * Check external API health
- */
 export async function checkExternalApiHealth() {
   return apiFetch('/golf-api/health');
 }
 
-// ============================================
-// AUTH ENDPOINTS
-// ============================================
-
-/**
- * Sign up a new user
- * @param {object} userData - { name, email, password }
- */
 export async function signUp(userData) {
   return apiFetch('/auth/signup', {
     method: 'POST',
@@ -147,10 +101,6 @@ export async function signUp(userData) {
   });
 }
 
-/**
- * Login a user
- * @param {object} credentials - { email, password }
- */
 export async function login(credentials) {
   return apiFetch('/auth/login', {
     method: 'POST',
@@ -158,13 +108,16 @@ export async function login(credentials) {
   });
 }
 
-// ============================================
-// HEALTH CHECK
-// ============================================
+export async function loginWithGoogle(idToken) {
+  return apiFetch('/auth/oauth/google', {
+    method: 'POST',
+    body: JSON.stringify({
+      idToken: idToken,
+      provider: 'google',
+    }),
+  });
+}
 
-/**
- * Check if backend is running
- */
 export async function checkBackendHealth() {
   return apiFetch('/health');
 }

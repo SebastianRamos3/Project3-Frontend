@@ -22,32 +22,27 @@ export default function SignUpScreen({ navigation, onSignUpSuccess }) {
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
-    // Validate inputs
     if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
-    // Validate name length
     if (name.trim().length < 2) {
       Alert.alert('Error', 'Name must be at least 2 characters long');
       return;
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
 
-    // Password strength validation
     if (password.length < 6) {
       Alert.alert('Error', 'Password must be at least 6 characters long');
       return;
     }
 
-    // Check if passwords match
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
@@ -70,7 +65,6 @@ export default function SignUpScreen({ navigation, onSignUpSuccess }) {
           {
             text: 'OK',
             onPress: () => {
-              // Call callback if provided
               if (onSignUpSuccess) {
                 onSignUpSuccess(response);
               }
@@ -83,7 +77,6 @@ export default function SignUpScreen({ navigation, onSignUpSuccess }) {
       
       let errorMessage = 'Failed to create account. Please try again.';
       
-      // Check for specific error messages
       if (err.message && err.message.includes('already exists')) {
         errorMessage = 'An account with this email already exists.';
       } else if (err.message && err.message.includes('400')) {
@@ -106,13 +99,11 @@ export default function SignUpScreen({ navigation, onSignUpSuccess }) {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>Create Account</Text>
             <Text style={styles.subtitle}>Join Greened Out today!</Text>
           </View>
 
-          {/* Form */}
           <View style={styles.form}>
             <TextInput
               style={styles.input}

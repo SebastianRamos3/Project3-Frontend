@@ -28,25 +28,11 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen 
-          name="Home" 
-          component={HomeScreen} 
-          options={{ title: 'Greened Out' }} 
-        />
-        <Stack.Screen 
-          name="Search" 
-          component={SearchScreen} 
-          options={{ title: 'Search Courses' }}
-        />
-        <Stack.Screen
-          name="LogGame"
-          component={LogGameScreen}
-          options={{ title: 'Log a Round' }}
-        />
-      <Stack.Navigator>
+      <Stack.Navigator 
+        key={user ? "authenticated" : "unauthenticated"}
+        initialRouteName={user == null ? "LogIn" : "Home"}
+      >
         {user == null ? (
-          // Auth Stack - User is NOT signed in
           <>
             <Stack.Screen
               name="LogIn"
@@ -62,11 +48,26 @@ export default function App() {
             </Stack.Screen>
           </>
         ) : (
-          // App Stack - User IS signed in (goes to Search after login)
           <>
-            <Stack.Screen
-              name="Search"
-              options={{
+            <Stack.Screen 
+              name="Home" 
+              component={HomeScreen} 
+              options={{ 
+                title: 'Greened Out',
+                headerRight: () => (
+                  <TouchableOpacity
+                    onPress={handleLogout}
+                    style={{ marginRight: 15 }}
+                  >
+                    <Text style={{ color: '#4CAF50', fontSize: 16 }}>Logout</Text>
+                  </TouchableOpacity>
+                ),
+              }} 
+            />
+            <Stack.Screen 
+              name="Search" 
+              component={SearchScreen} 
+              options={{ 
                 title: 'Search Courses',
                 headerRight: () => (
                   <TouchableOpacity
@@ -77,25 +78,12 @@ export default function App() {
                   </TouchableOpacity>
                 ),
               }}
-            >
-              {props => <SearchScreen {...props} user={user} />}
-            </Stack.Screen>
+            />
             <Stack.Screen
-              name="Home"
-              options={{
-                title: 'Greened Out',
-                headerRight: () => (
-                  <TouchableOpacity
-                    onPress={handleLogout}
-                    style={{ marginRight: 15 }}
-                  >
-                    <Text style={{ color: '#4CAF50', fontSize: 16 }}>Logout</Text>
-                  </TouchableOpacity>
-                ),
-              }}
-            >
-              {props => <HomeScreen {...props} user={user} />}
-            </Stack.Screen>
+              name="LogGame"
+              component={LogGameScreen}
+              options={{ title: 'Log a Round' }}
+            />
           </>
         )}
       </Stack.Navigator>
