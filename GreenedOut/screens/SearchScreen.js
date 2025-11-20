@@ -8,7 +8,9 @@ import {
   SafeAreaView,
   ActivityIndicator,
   TouchableOpacity,
-  Alert
+  Alert,
+  Modal,
+  Pressable
 } from 'react-native';
 import { getAllCourses, searchCourses } from '../api';
 
@@ -18,6 +20,10 @@ export default function SearchScreen({ navigation }) {  // Added navigation
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // NEW: modal state
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
   useEffect(() => {
     loadAllCourses();
@@ -183,6 +189,50 @@ export default function SearchScreen({ navigation }) {  // Added navigation
           />
         </>
       )}
+
+      {/* NEW: Course details modal */}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalBackdrop}>
+          <Pressable style={styles.modalBackdropPressable} onPress={closeModal} />
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle} numberOfLines={2}>
+              {selectedCourse?.name || 'Course'}
+            </Text>
+
+            {selectedCourse?.clubName && selectedCourse?.clubName !== selectedCourse?.name ? (
+              <Text style={styles.modalLine}>🏌️ {selectedCourse.clubName}</Text>
+            ) : null}
+
+            {(selectedCourse?.city || selectedCourse?.state) ? (
+              <Text style={styles.modalLine}>
+                📍 {selectedCourse?.city}{selectedCourse?.city && selectedCourse?.state ? ', ' : ''}{selectedCourse?.state}
+              </Text>
+            ) : null}
+
+            {selectedCourse?.numHoles ? (
+              <Text style={styles.modalLine}>⛳ {selectedCourse.numHoles} holes</Text>
+            ) : null}
+
+            {selectedCourse?.phoneNumber ? (
+              <Text style={styles.modalLine}>📞 {selectedCourse.phoneNumber}</Text>
+            ) : null}
+
+            <View style={styles.modalButtons}>
+              <Pressable style={[styles.modalButton, styles.modalButtonSecondary]} onPress={closeModal}>
+                <Text style={styles.modalButtonSecondaryText}>Close</Text>
+              </Pressable>
+              <Pressable style={styles.modalButton} onPress={goToLogGame}>
+                <Text style={styles.modalButtonText}>Log a round</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -277,5 +327,42 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+
+  // NEW: modal styles
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'flex-end',
+  },
+  modalBackdropPressable: { flex: 1 },
+  modalCard: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 18,
+    paddingBottom: 28,
+  },
+  modalTitle: { fontSize: 18, fontWeight: '700', marginBottom: 8, color: '#222' },
+  modalLine: { fontSize: 14, marginTop: 6, color: '#333' },
+  modalButtons: {
+    marginTop: 18,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  modalButton: {
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  modalButtonText: { color: 'white', fontWeight: '700' },
+  modalButtonSecondary: {
+    backgroundColor: '#e6e6e6',
+  },
+  modalButtonSecondaryText: {
+    color: '#333',
+    fontWeight: '700',
   },
 });

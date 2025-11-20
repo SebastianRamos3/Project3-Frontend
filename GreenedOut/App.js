@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import SignUpScreen from './screens/SignUpScreen';
 import HomeScreen from './screens/HomeScreen';
 import SearchScreen from './screens/SearchScreen';
+import LogGameScreen from './screens/LogGameScreen'; 
 import LogInScreen from './screens/LogInScreen';
 import CourseDetailScreen from './screens/CourseDetailScreen';
 import JournalScreen from './screens/JournalScreen';
@@ -31,6 +32,22 @@ export default function App() {
 
   return (
     <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen 
+          name="Home" 
+          component={HomeScreen} 
+          options={{ title: 'Greened Out' }} 
+        />
+        <Stack.Screen 
+          name="Search" 
+          component={SearchScreen} 
+          options={{ title: 'Search Courses' }}
+        />
+        <Stack.Screen
+          name="LogGame"
+          component={LogGameScreen}
+          options={{ title: 'Log a Round' }}
+        />
       <Stack.Navigator>
         {user == null ? (
           // Auth Stack - User is NOT signed in
