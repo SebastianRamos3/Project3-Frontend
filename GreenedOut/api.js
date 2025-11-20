@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://10.0.0.224:8080/api';
+const API_BASE_URL = 'http://10.0.0.238:8080/api';
 
 
 console.log('API Base URL:', API_BASE_URL);
