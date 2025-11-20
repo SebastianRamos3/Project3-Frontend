@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://10.0.0.224:8080/api';
+const API_BASE_URL = 'http://10.0.0.238:8080/api';
 
 
 console.log('API Base URL:', API_BASE_URL);
@@ -155,6 +155,57 @@ export async function login(credentials) {
   return apiFetch('/auth/login', {
     method: 'POST',
     body: JSON.stringify(credentials),
+  });
+}
+
+// ============================================
+// ROUNDS/JOURNAL ENDPOINTS
+// ============================================
+
+/**
+ * Create a new round (log a golf round)
+ * @param {string} userId - User UUID
+ * @param {object} roundData - { courseId, datePlayed, holeScores, notes }
+ * @example roundData = {
+ *   courseId: 5,
+ *   datePlayed: "2025-11-19",
+ *   holeScores: [
+ *     { holeNumber: 1, strokes: 4, par: 4 },
+ *     { holeNumber: 2, strokes: 5, par: 4 }
+ *   ],
+ *   notes: "Great round!"
+ * }
+ */
+export async function createRound(userId, roundData) {
+  return apiFetch(`/rounds?userId=${userId}`, {
+    method: 'POST',
+    body: JSON.stringify(roundData),
+  });
+}
+
+/**
+ * Get all rounds for a user
+ * @param {string} userId - User UUID
+ */
+export async function getUserRounds(userId) {
+  return apiFetch(`/rounds/user/${userId}`);
+}
+
+/**
+ * Get a specific round by ID
+ * @param {number} roundId - Round ID
+ */
+export async function getRoundById(roundId) {
+  return apiFetch(`/rounds/${roundId}`);
+}
+
+/**
+ * Delete a round
+ * @param {number} roundId - Round ID
+ */
+export async function deleteRound(roundId) {
+  return apiFetch(`/rounds/${roundId}`, {
+    method: 'DELETE',
   });
 }
 

@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { getAllCourses, searchCourses } from '../api';
 
-export default function SearchScreen({ navigation }) { // <-- accept navigation
+export default function SearchScreen({ navigation }) {  // Added navigation
   const [searchQuery, setSearchQuery] = useState('');
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
@@ -87,22 +87,9 @@ export default function SearchScreen({ navigation }) { // <-- accept navigation
     }
   };
 
-  // CHANGED: open modal instead of Alert
+  // UPDATED: Navigate to CourseDetail screen
   const handleCoursePress = (course) => {
-    setSelectedCourse(course);
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-    // small delay to clear to avoid flicker if rapidly selecting another
-    setTimeout(() => setSelectedCourse(null), 150);
-  };
-
-  const goToLogGame = () => {
-    if (!selectedCourse) return;
-    setModalVisible(false);
-    navigation.navigate('LogGame', { course: selectedCourse });
+    navigation.navigate('CourseDetail', { courseId: course.id });
   };
 
   /**
