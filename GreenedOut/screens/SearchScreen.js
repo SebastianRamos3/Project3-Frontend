@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { getAllCourses, searchCourses } from '../api';
 
-export default function SearchScreen() {
+export default function SearchScreen({ navigation }) {  // Added navigation
   const [searchQuery, setSearchQuery] = useState('');
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
@@ -81,14 +81,9 @@ export default function SearchScreen() {
     }
   };
 
+  // UPDATED: Navigate to CourseDetail screen
   const handleCoursePress = (course) => {
-    Alert.alert(
-      course.name,
-      `${course.city ? course.city + ', ' : ''}${course.state || ''}\n\n` +
-      `${course.numHoles ? course.numHoles + ' holes\n' : ''}` +
-      `${course.phoneNumber ? 'Phone: ' + course.phoneNumber : ''}`,
-      [{ text: 'OK' }]
-    );
+    navigation.navigate('CourseDetail', { courseId: course.id });
   };
 
   /**

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TouchableOpacity, Text } from 'react-native';
+import { TouchableOpacity, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -7,6 +7,10 @@ import SignUpScreen from './screens/SignUpScreen';
 import HomeScreen from './screens/HomeScreen';
 import SearchScreen from './screens/SearchScreen';
 import LogInScreen from './screens/LogInScreen';
+import CourseDetailScreen from './screens/CourseDetailScreen';
+import JournalScreen from './screens/JournalScreen';
+import LogRoundScreen from './screens/LogRoundScreen';
+import RoundDetailScreen from './screens/RoundDetailScreen';
 
 const Stack = createStackNavigator();
 
@@ -45,24 +49,33 @@ export default function App() {
             </Stack.Screen>
           </>
         ) : (
-          // App Stack - User IS signed in (goes to Search after login)
+          // App Stack - User IS signed in
           <>
             <Stack.Screen
               name="Search"
-              options={{
+              options={({ navigation }) => ({
                 title: 'Search Courses',
                 headerRight: () => (
-                  <TouchableOpacity
-                    onPress={handleLogout}
-                    style={{ marginRight: 15 }}
-                  >
-                    <Text style={{ color: '#4CAF50', fontSize: 16 }}>Logout</Text>
-                  </TouchableOpacity>
+                  <View style={{ flexDirection: 'row' }}>
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('Journal')}
+                      style={{ marginRight: 15 }}
+                    >
+                      <Text style={{ color: '#4CAF50', fontSize: 16 }}>Journal</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={handleLogout}
+                      style={{ marginRight: 15 }}
+                    >
+                      <Text style={{ color: '#4CAF50', fontSize: 16 }}>Logout</Text>
+                    </TouchableOpacity>
+                  </View>
                 ),
-              }}
+              })}
             >
               {props => <SearchScreen {...props} user={user} />}
             </Stack.Screen>
+
             <Stack.Screen
               name="Home"
               options={{
@@ -78,6 +91,36 @@ export default function App() {
               }}
             >
               {props => <HomeScreen {...props} user={user} />}
+            </Stack.Screen>
+
+            {/* Course Detail Screen */}
+            <Stack.Screen
+              name="CourseDetail"
+              options={{ title: 'Course Details' }}
+            >
+              {props => <CourseDetailScreen {...props} user={user} />}
+            </Stack.Screen>
+
+            {/* Journal Screens */}
+            <Stack.Screen
+              name="Journal"
+              options={{ title: 'My Golf Journal' }}
+            >
+              {props => <JournalScreen {...props} user={user} />}
+            </Stack.Screen>
+
+            <Stack.Screen
+              name="LogRound"
+              options={{ title: 'Log Round' }}
+            >
+              {props => <LogRoundScreen {...props} user={user} />}
+            </Stack.Screen>
+
+            <Stack.Screen
+              name="RoundDetail"
+              options={{ title: 'Round Details' }}
+            >
+              {props => <RoundDetailScreen {...props} user={user} />}
             </Stack.Screen>
           </>
         )}
