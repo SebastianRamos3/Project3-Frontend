@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { getAllCourses, searchCourses } from '../api';
 
-export default function SearchScreen({ navigation }) {  // Added navigation
+export default function SearchScreen({ navigation, user }) {  // Use user prop instead of route.params
   const [searchQuery, setSearchQuery] = useState('');
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
@@ -49,7 +49,7 @@ export default function SearchScreen({ navigation }) {  // Added navigation
       setError('Failed to load courses. Make sure the backend is running.');
       Alert.alert(
         'Connection Error',
-        'Could not connect to the server. Is your backend running on http://localhost:8080?',
+        'Could not connect to the server. Is your backend running?',
         [
           { text: 'Retry', onPress: loadAllCourses },
           { text: 'Cancel', style: 'cancel' }
@@ -81,14 +81,14 @@ export default function SearchScreen({ navigation }) {  // Added navigation
     }
   };
 
-  // UPDATED: Navigate to CourseDetail screen
+  // Navigate to CourseDetail with userId from user prop
   const handleCoursePress = (course) => {
-    navigation.navigate('CourseDetail', { courseId: course.id });
+    navigation.navigate('CourseDetail', { 
+      courseId: course.id,
+      userId: user.id  // Pass userId from user prop
+    });
   };
 
-  /**
-   * Render individual course item
-   */
   const renderCourseItem = ({ item }) => (
     <TouchableOpacity 
       style={styles.itemContainer}
@@ -109,9 +109,6 @@ export default function SearchScreen({ navigation }) {  // Added navigation
     </TouchableOpacity>
   );
 
-  /**
-   * Render empty state
-   */
   const renderEmptyComponent = () => {
     if (loading) {
       return null;
