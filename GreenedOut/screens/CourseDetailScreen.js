@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,12 +6,15 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Alert,
+  Linking,
+  Platform,
 } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { Ionicons } from '@expo/vector-icons';
 import { getCourseById } from '../api';
 
-export default function CourseDetailScreen({ navigation, route, user }) {
-  const { courseId } = route.params;
+export default function CourseDetailsScreen({ route, navigation }) {
+  const { courseId, userId } = route.params; // Get userId from params
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -21,20 +24,30 @@ export default function CourseDetailScreen({ navigation, route, user }) {
 
   const loadCourse = async () => {
     try {
-      const courseData = await getCourseById(courseId);
-      console.log('Course data:', courseData); // Debug log
-      setCourse(courseData);
+      const data = await getCourseById(courseId);
+      setCourse(data);
     } catch (error) {
-      console.error('Error loading course:', error);
-      Alert.alert('Error', 'Failed to load course details');
+      console.error('Failed to load course:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  const openDirections = () => {
+    const { latitude, longitude, name } = course;
+    const label = encodeURIComponent(name);
+    
+    const url = Platform.select({
+      ios: `maps:0,0?q=${label}@${latitude},${longitude}`,
+      android: `geo:0,0?q=${latitude},${longitude}(${label})`,
+    });
+
+    Linking.openURL(url);
+  };
+
   if (loading) {
     return (
-      <View style={styles.centerContainer}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#4CAF50" />
       </View>
     );
@@ -42,97 +55,130 @@ export default function CourseDetailScreen({ navigation, route, user }) {
 
   if (!course) {
     return (
-      <View style={styles.centerContainer}>
-        <Text>Course not found</Text>
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Course not found</Text>
       </View>
     );
   }
 
+  const region = {
+    latitude: course.latitude,
+    longitude: course.longitude,
+    latitudeDelta: 0.02,
+    longitudeDelta: 0.02,
+  };
+
   return (
-    <View style={styles.container}>
-      {/* Course Header */}
+    <ScrollView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.courseName}>{course.name}</Text>
-        {course.clubName && course.clubName !== course.name && (
-          <Text style={styles.clubName}>{course.clubName}</Text>
-        )}
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.courseName} numberOfLines={2}>{course.name}</Text>
       </View>
 
-      <ScrollView style={styles.content}>
-        {/* Location */}
-        {(course.city || course.state || course.country) && (
-          <View style={styles.infoCard}>
-            <Text style={styles.cardTitle}>📍 Location</Text>
-            <Text style={styles.infoText}>
-              {[course.city, course.state, course.country]
-                .filter(Boolean)
-                .join(', ')}
-            </Text>
-            {course.zipCode && (
-              <Text style={styles.infoText}>{course.zipCode}</Text>
-            )}
-          </View>
-        )}
+      {/* Map */}
+      <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          region={region}
+          scrollEnabled={false}
+          zoomEnabled={false}
+        >
+          <Marker
+            coordinate={{
+              latitude: course.latitude,
+              longitude: course.longitude,
+            }}
+            title={course.name}
+            pinColor="#4CAF50"
+          />
+        </MapView>
+        
+        {/* Directions Button Overlay */}
+        <TouchableOpacity 
+          style={styles.directionsButton}
+          onPress={openDirections}
+        >
+          <Ionicons name="navigate" size={20} color="#fff" />
+          <Text style={styles.directionsText}>Get Directions</Text>
+        </TouchableOpacity>
+      </View>
 
-        {/* Course Info */}
-        <View style={styles.infoCard}>
-          <Text style={styles.cardTitle}>⛳ Course Info</Text>
-          {course.numHoles && (
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Holes:</Text>
-              <Text style={styles.value}>{course.numHoles}</Text>
+      {/* Course Info Cards */}
+      <View style={styles.content}>
+        {/* Location Card */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={styles.iconCircle}>
+              <Ionicons name="location" size={24} color="#4CAF50" />
             </View>
+            <Text style={styles.cardTitle}>Location</Text>
+          </View>
+          <Text style={styles.locationText}>
+            {course.city}, {course.state}
+          </Text>
+          <Text style={styles.locationSubtext}>
+            {course.country}
+          </Text>
+          {course.zipCode && (
+            <Text style={styles.locationSubtext}>{course.zipCode}</Text>
           )}
         </View>
 
-        {/* Contact Info */}
-        {(course.phoneNumber || course.website) && (
-          <View style={styles.infoCard}>
-            <Text style={styles.cardTitle}>📞 Contact</Text>
-            {course.phoneNumber && (
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Phone:</Text>
-                <Text style={styles.value}>{course.phoneNumber}</Text>
-              </View>
-            )}
-            {course.website && (
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Website:</Text>
-                <Text style={[styles.value, styles.link]} numberOfLines={1}>
-                  {course.website}
-                </Text>
+        {/* Course Info Card */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={styles.iconCircle}>
+              <Ionicons name="golf" size={24} color="#4CAF50" />
+            </View>
+            <Text style={styles.cardTitle}>Course Info</Text>
+          </View>
+          
+          <View style={styles.infoGrid}>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>Holes</Text>
+              <Text style={styles.infoValue}>{course.numHoles}</Text>
+            </View>
+            
+            {course.clubName && course.clubName !== course.name && (
+              <View style={styles.infoItemFull}>
+                <Text style={styles.infoLabel}>Club Name</Text>
+                <Text style={styles.infoValue}>{course.clubName}</Text>
               </View>
             )}
           </View>
-        )}
+        </View>
 
         {/* Description */}
         {course.description && (
-          <View style={styles.infoCard}>
-            <Text style={styles.cardTitle}>ℹ️ About</Text>
-            <Text style={styles.description}>{course.description}</Text>
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <View style={styles.iconCircle}>
+                <Ionicons name="document-text" size={24} color="#4CAF50" />
+              </View>
+              <Text style={styles.cardTitle}>About</Text>
+            </View>
+            <Text style={styles.descriptionText}>{course.description}</Text>
           </View>
         )}
-
-        {/* Coordinates - for debugging, can remove */}
-        {(course.latitude || course.longitude) && (
-          <View style={styles.infoCard}>
-            <Text style={styles.cardTitle}>🗺️ Coordinates</Text>
-            <Text style={styles.infoText}>
-              {course.latitude}, {course.longitude}
-            </Text>
-          </View>
-        )}
-      </ScrollView>
+      </View>
 
       {/* Log Round Button */}
-      <TouchableOpacity
-        style={styles.logRoundButton}
-        onPress={() => navigation.navigate('LogRound', { courseId: course.id })}
-      >
-        <Text style={styles.logRoundButtonText}>Log Round</Text>
-      </TouchableOpacity>
-    </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.logRoundButton}
+          onPress={() => navigation.navigate('LogRound', { courseId: course.id, userId: userId })}
+        >
+          <Ionicons name="add-circle-outline" size={24} color="#fff" />
+          <Text style={styles.logRoundButtonText}>Log Round</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -141,94 +187,162 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  centerContainer: {
+  loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  errorText: {
+    fontSize: 18,
+    color: '#666',
   },
   header: {
     backgroundColor: '#4CAF50',
-    padding: 20,
-    paddingTop: 10,
+    paddingTop: 60,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    marginRight: 15,
+    padding: 5,
   },
   courseName: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#fff',
-    textAlign: 'center',
-  },
-  clubName: {
-    fontSize: 16,
-    color: '#fff',
-    marginTop: 5,
-    textAlign: 'center',
-    opacity: 0.9,
-  },
-  content: {
     flex: 1,
   },
-  infoCard: {
-    backgroundColor: '#fff',
-    marginHorizontal: 15,
-    marginTop: 15,
+  mapContainer: {
+    height: 250,
+    position: 'relative',
+    backgroundColor: '#e0e0e0',
+  },
+  map: {
+    width: '100%',
+    height: '100%',
+  },
+  directionsButton: {
+    position: 'absolute',
+    bottom: 15,
+    right: 15,
+    backgroundColor: '#4CAF50',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  directionsText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  content: {
     padding: 15,
+  },
+  card: {
+    backgroundColor: '#fff',
     borderRadius: 12,
+    padding: 20,
+    marginBottom: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
   },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  iconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E8F5E9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
   cardTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 10,
   },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 5,
-  },
-  label: {
-    fontSize: 15,
-    color: '#666',
-    fontWeight: '500',
-  },
-  value: {
-    fontSize: 15,
-    color: '#333',
-    flex: 1,
-    textAlign: 'right',
-  },
-  infoText: {
+  locationText: {
     fontSize: 16,
     color: '#333',
-    lineHeight: 22,
+    marginBottom: 5,
+    fontWeight: '500',
   },
-  description: {
+  locationSubtext: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 3,
+  },
+  infoGrid: {
+    flexDirection: 'column',
+  },
+  infoItem: {
+    marginBottom: 12,
+  },
+  infoItemFull: {
+    marginBottom: 12,
+  },
+  infoLabel: {
+    fontSize: 13,
+    color: '#888',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  infoValue: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
+  },
+  descriptionText: {
     fontSize: 15,
     color: '#555',
     lineHeight: 22,
   },
-  link: {
-    color: '#4CAF50',
+  buttonContainer: {
+    padding: 15,
+    paddingBottom: 30,
   },
   logRoundButton: {
     backgroundColor: '#4CAF50',
-    padding: 18,
-    margin: 15,
-    borderRadius: 12,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
   logRoundButtonText: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    marginLeft: 10,
   },
 });

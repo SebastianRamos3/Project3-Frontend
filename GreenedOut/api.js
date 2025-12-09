@@ -1,4 +1,5 @@
-const API_BASE_URL = 'http://10.0.0.238:8080/api';
+const API_BASE_URL = 'http://10.0.0.238:8080/api'; // julian home
+//const API_BASE_URL = 'http://10.11.126.58:8080/api'; //csumb
 
 
 console.log('API Base URL:', API_BASE_URL);
@@ -164,9 +165,9 @@ export async function login(credentials) {
 
 /**
  * Create a new round (log a golf round)
- * @param {string} userId - User UUID
- * @param {object} roundData - { courseId, datePlayed, holeScores, notes }
+ * @param {object} roundData - { userId, courseId, datePlayed, holeScores, notes }
  * @example roundData = {
+ *   userId: "cd015f9c-5af5-47ce-ba8c-4ff637f8a2c0",
  *   courseId: 5,
  *   datePlayed: "2025-11-19",
  *   holeScores: [
@@ -176,8 +177,8 @@ export async function login(credentials) {
  *   notes: "Great round!"
  * }
  */
-export async function createRound(userId, roundData) {
-  return apiFetch(`/rounds?userId=${userId}`, {
+export async function createRound(roundData) {
+  return apiFetch('/rounds', {
     method: 'POST',
     body: JSON.stringify(roundData),
   });
