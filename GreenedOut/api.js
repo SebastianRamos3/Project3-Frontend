@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 const API_BASE_URL = typeof window !== 'undefined' 
   ? 'http://localhost:8080/api'
   : 'http://10.0.0.200:8080/api';
+=======
+const API_BASE_URL = 'http://10.0.0.238:8080/api'; // julian home
+//const API_BASE_URL = 'http://10.11.126.58:8080/api'; //csumb
+>>>>>>> f9df0c1d696a16f8c4bb810918ef4390b0ea1252
 
 
 console.log('API Base URL:', API_BASE_URL);
@@ -108,6 +113,7 @@ export async function login(credentials) {
   });
 }
 
+<<<<<<< HEAD
 export async function loginWithGoogle(idToken) {
   return apiFetch('/auth/oauth/google', {
     method: 'POST',
@@ -117,6 +123,62 @@ export async function loginWithGoogle(idToken) {
     }),
   });
 }
+=======
+// ============================================
+// ROUNDS/JOURNAL ENDPOINTS
+// ============================================
+
+/**
+ * Create a new round (log a golf round)
+ * @param {object} roundData - { userId, courseId, datePlayed, holeScores, notes }
+ * @example roundData = {
+ *   userId: "cd015f9c-5af5-47ce-ba8c-4ff637f8a2c0",
+ *   courseId: 5,
+ *   datePlayed: "2025-11-19",
+ *   holeScores: [
+ *     { holeNumber: 1, strokes: 4, par: 4 },
+ *     { holeNumber: 2, strokes: 5, par: 4 }
+ *   ],
+ *   notes: "Great round!"
+ * }
+ */
+export async function createRound(roundData) {
+  return apiFetch('/rounds', {
+    method: 'POST',
+    body: JSON.stringify(roundData),
+  });
+}
+
+/**
+ * Get all rounds for a user
+ * @param {string} userId - User UUID
+ */
+export async function getUserRounds(userId) {
+  return apiFetch(`/rounds/user/${userId}`);
+}
+
+/**
+ * Get a specific round by ID
+ * @param {number} roundId - Round ID
+ */
+export async function getRoundById(roundId) {
+  return apiFetch(`/rounds/${roundId}`);
+}
+
+/**
+ * Delete a round
+ * @param {number} roundId - Round ID
+ */
+export async function deleteRound(roundId) {
+  return apiFetch(`/rounds/${roundId}`, {
+    method: 'DELETE',
+  });
+}
+
+// ============================================
+// HEALTH CHECK
+// ============================================
+>>>>>>> f9df0c1d696a16f8c4bb810918ef4390b0ea1252
 
 export async function checkBackendHealth() {
   return apiFetch('/health');

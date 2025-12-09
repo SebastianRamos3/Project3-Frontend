@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { getAllCourses, searchCourses } from '../api';
 
-export default function SearchScreen({ navigation }) { // <-- accept navigation
+export default function SearchScreen({ navigation, user }) {  // Use user prop instead of route.params
   const [searchQuery, setSearchQuery] = useState('');
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
@@ -55,7 +55,7 @@ export default function SearchScreen({ navigation }) { // <-- accept navigation
       setError('Failed to load courses. Make sure the backend is running.');
       Alert.alert(
         'Connection Error',
-        'Could not connect to the server. Is your backend running on http://localhost:8080?',
+        'Could not connect to the server. Is your backend running?',
         [
           { text: 'Retry', onPress: loadAllCourses },
           { text: 'Cancel', style: 'cancel' }
@@ -87,27 +87,14 @@ export default function SearchScreen({ navigation }) { // <-- accept navigation
     }
   };
 
-  // CHANGED: open modal instead of Alert
+  // Navigate to CourseDetail with userId from user prop
   const handleCoursePress = (course) => {
-    setSelectedCourse(course);
-    setModalVisible(true);
+    navigation.navigate('CourseDetail', { 
+      courseId: course.id,
+      userId: user.id  // Pass userId from user prop
+    });
   };
 
-  const closeModal = () => {
-    setModalVisible(false);
-    // small delay to clear to avoid flicker if rapidly selecting another
-    setTimeout(() => setSelectedCourse(null), 150);
-  };
-
-  const goToLogGame = () => {
-    if (!selectedCourse) return;
-    setModalVisible(false);
-    navigation.navigate('LogGame', { course: selectedCourse });
-  };
-
-  /**
-   * Render individual course item
-   */
   const renderCourseItem = ({ item }) => (
     <TouchableOpacity 
       style={styles.itemContainer}
@@ -128,9 +115,6 @@ export default function SearchScreen({ navigation }) { // <-- accept navigation
     </TouchableOpacity>
   );
 
-  /**
-   * Render empty state
-   */
   const renderEmptyComponent = () => {
     if (loading) {
       return null;
