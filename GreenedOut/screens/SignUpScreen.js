@@ -63,21 +63,18 @@ export default function SignUpScreen({ navigation, onSignUpSuccess }) {
 
       console.log('Sign up successful:', response);
       
-      Alert.alert(
-        'Success',
-        'Account created successfully!',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Call callback if provided
-              if (onSignUpSuccess) {
-                onSignUpSuccess(response);
-              }
-            },
-          },
-        ]
-      );
+      // Call callback if provided
+      if (onSignUpSuccess) {
+        onSignUpSuccess(response);
+      }
+      
+      Alert.alert('Success', 'Account created successfully!');
+      
+      // Reset navigation stack to Search screen after successful signup
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Search' }],
+      });
     } catch (err) {
       console.error('Sign up error:', err);
       

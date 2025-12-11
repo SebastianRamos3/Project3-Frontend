@@ -1,5 +1,8 @@
-const API_BASE_URL = 'http://10.0.0.238:8080/api'; // julian home
-//const API_BASE_URL = 'http://10.11.126.58:8080/api'; //csumb
+// Production Heroku URL
+const API_BASE_URL = 'https://project3-0f9437dc4342.herokuapp.com/api';
+// Local development URLs (uncomment to use):
+//const API_BASE_URL = 'http://10.0.0.195:8080/api'; // local development (physical device/Android emulator)
+//const API_BASE_URL = 'http://localhost:8080/api'; // iOS Simulator only
 
 
 console.log('API Base URL:', API_BASE_URL);
@@ -8,6 +11,7 @@ async function apiFetch(endpoint, options = {}) {
   try {
     const url = `${API_BASE_URL}${endpoint}`;
     console.log('Fetching:', url);
+    console.log('Options:', JSON.stringify(options, null, 2));
     
     const response = await fetch(url, {
       headers: {
@@ -18,8 +22,22 @@ async function apiFetch(endpoint, options = {}) {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API Error: ${response.status} - ${errorText}`);
+      let errorText;
+      try {
+        const errorJson = await response.json();
+        errorText = errorJson.error || JSON.stringify(errorJson);
+      } catch (e) {
+        errorText = await response.text();
+      }
+      console.error('API Error Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText
+      });
+      const error = new Error(errorText || `API Error: ${response.status}`);
+      error.status = response.status;
+      error.response = errorText;
+      throw error;
     }
 
     return await response.json();
@@ -156,6 +174,25 @@ export async function login(credentials) {
   return apiFetch('/auth/login', {
     method: 'POST',
     body: JSON.stringify(credentials),
+  });
+}
+
+/**
+ * Get user by email
+ * @param {string} email - User email
+ */
+export async function getUserByEmail(email) {
+  return apiFetch(`/auth/user-by-email?email=${encodeURIComponent(email)}`);
+}
+
+/**
+ * Sign in with Google OAuth
+ * @param {string} idToken - Google ID token from OAuth flow
+ */
+export async function signInWithGoogle(idToken) {
+  return apiFetch('/auth/google', {
+    method: 'POST',
+    body: JSON.stringify({ idToken }),
   });
 }
 

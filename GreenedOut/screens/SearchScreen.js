@@ -95,6 +95,23 @@ export default function SearchScreen({ navigation, user }) {  // Use user prop i
     });
   };
 
+  // Close modal
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedCourse(null);
+  };
+
+  // Navigate to log round screen
+  const goToLogGame = () => {
+    closeModal();
+    if (selectedCourse && user) {
+      navigation.navigate('LogRound', {
+        courseId: selectedCourse.id,
+        userId: user.id
+      });
+    }
+  };
+
   const renderCourseItem = ({ item }) => (
     <TouchableOpacity 
       style={styles.itemContainer}

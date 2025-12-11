@@ -13,20 +13,50 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.greenedout.app",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "greenedout"
+            ]
+          },
+          {
+            "CFBundleURLSchemes": [
+              "greenedout"
+            ]
+          }
+        ],
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
+    "scheme": "greenedout",
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.greenedout.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-sqlite"
-    ]
+      "expo-sqlite",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.496859102995-f8q2ofobhnkirp1lqbivebesa32f1s1b"
+        }
+      ]
+    ],
+    "extra": {
+      "googleOAuthClientId": "496859102995-f8q2ofobhnkirp1lqbivebesa32f1s1b.apps.googleusercontent.com",
+      "eas": {
+        "projectId": "d54536e0-1ab6-4c58-b1fe-7087497d2647"
+      }
+    }
   }
 }

@@ -11,7 +11,9 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { login } from '../api';
+import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import { login, signInWithGoogle as apiSignInWithGoogle } from '../api';
+import { signInWithGoogle } from '../googleAuth';
 
 export default function LoginScreen({ navigation, onLoginSuccess }) {
   const [email, setEmail] = useState('');
@@ -37,18 +39,54 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
       const response = await login({ email: email.trim().toLowerCase(), password });
       
       console.log('Login successful:', response);
-      Alert.alert('Success', 'Logged in successfully!');
       
       // Call the callback to update auth state
       if (onLoginSuccess) {
         onLoginSuccess(response);
       }
+      
+      // Reset navigation stack to Search screen after successful login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Search' }],
+      });
     } catch (err) {
       console.error('Login error:', err);
       Alert.alert(
         'Login Failed',
         'Invalid email or password. Please try again.'
       );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setLoading(true);
+      
+      // Get Google ID token
+      const idToken = await signInWithGoogle();
+      
+      // Send to backend for verification
+      const response = await apiSignInWithGoogle(idToken);
+      
+      console.log('Google sign-in successful:', response);
+      
+      // Call the callback to update auth state
+      if (onLoginSuccess) {
+        onLoginSuccess(response);
+      }
+      
+      // Reset navigation stack to Search screen after successful login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Search' }],
+      });
+    } catch (err) {
+      console.error('Google sign-in error:', err);
+      const errorMessage = err.message || 'Google sign-in failed. Please try again.';
+      Alert.alert('Sign-In Failed', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -102,6 +140,21 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
                 <Text style={styles.buttonText}>Log In</Text>
               )}
             </TouchableOpacity>
+
+            {/* Divider */}
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>OR</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            {/* Google Sign-In Button */}
+            <GoogleSigninButton
+              size={GoogleSigninButton.Size.Wide}
+              color={GoogleSigninButton.Color.Light}
+              onPress={handleGoogleSignIn}
+              disabled={loading}
+            />
           </View>
 
           {/* Sign Up Link */}
@@ -189,5 +242,20 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#4CAF50',
     fontWeight: '600',
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#ddd',
+  },
+  dividerText: {
+    marginHorizontal: 15,
+    fontSize: 14,
+    color: '#666',
   },
 });
