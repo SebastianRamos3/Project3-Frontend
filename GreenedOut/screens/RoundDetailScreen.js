@@ -23,7 +23,6 @@ export default function RoundDetailScreen({ route }) {
       const roundData = await getRoundById(roundId);
       setRound(roundData);
     } catch (error) {
-      console.error('Error loading round:', error);
       Alert.alert('Error', 'Failed to load round details');
     } finally {
       setLoading(false);
@@ -59,14 +58,12 @@ export default function RoundDetailScreen({ route }) {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.courseName}>{round.courseName}</Text>
         <Text style={styles.date}>{round.datePlayed}</Text>
         <Text style={styles.totalScore}>{round.totalStrokes} strokes</Text>
       </View>
 
-      {/* Notes */}
       {round.notes && (
         <View style={styles.notesSection}>
           <Text style={styles.sectionTitle}>Notes</Text>
@@ -74,7 +71,6 @@ export default function RoundDetailScreen({ route }) {
         </View>
       )}
 
-      {/* Scorecard */}
       <View style={styles.scorecardSection}>
         <Text style={styles.sectionTitle}>Scorecard</Text>
         {round.holeScores && round.holeScores.length > 0 ? (

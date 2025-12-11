@@ -14,14 +14,13 @@ import {
 } from 'react-native';
 import { getAllCourses, searchCourses } from '../api';
 
-export default function SearchScreen({ navigation, user }) {  // Use user prop instead of route.params
+export default function SearchScreen({ navigation, user }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // NEW: modal state
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
@@ -49,9 +48,7 @@ export default function SearchScreen({ navigation, user }) {  // Use user prop i
       const data = await getAllCourses();
       setCourses(data);
       setFilteredCourses(data);
-      console.log('Loaded courses:', data.length);
     } catch (err) {
-      console.error('Error loading courses:', err);
       setError('Failed to load courses. Make sure the backend is running.');
       Alert.alert(
         'Connection Error',
@@ -78,30 +75,25 @@ export default function SearchScreen({ navigation, user }) {  // Use user prop i
       const data = await searchCourses(searchQuery);
       setCourses(data);
       setFilteredCourses(data);
-      console.log('Search results:', data.length);
     } catch (err) {
-      console.error('Error searching courses:', err);
       setError('Failed to search courses.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Navigate to CourseDetail with userId from user prop
   const handleCoursePress = (course) => {
     navigation.navigate('CourseDetail', { 
       courseId: course.id,
-      userId: user.id  // Pass userId from user prop
+      userId: user.id
     });
   };
 
-  // Close modal
   const closeModal = () => {
     setModalVisible(false);
     setSelectedCourse(null);
   };
 
-  // Navigate to log round screen
   const goToLogGame = () => {
     closeModal();
     if (selectedCourse && user) {
@@ -160,7 +152,6 @@ export default function SearchScreen({ navigation, user }) {  // Use user prop i
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchBar}
@@ -172,7 +163,6 @@ export default function SearchScreen({ navigation, user }) {  // Use user prop i
         />
       </View>
 
-      {/* Loading Indicator */}
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#4CAF50" />
@@ -180,10 +170,8 @@ export default function SearchScreen({ navigation, user }) {  // Use user prop i
         </View>
       )}
 
-      {/* Course List */}
       {!loading && (
         <>
-          {/* Results Count */}
           {filteredCourses.length > 0 && (
             <View style={styles.resultsHeader}>
               <Text style={styles.resultsCount}>
@@ -204,7 +192,6 @@ export default function SearchScreen({ navigation, user }) {  // Use user prop i
         </>
       )}
 
-      {/* NEW: Course details modal */}
       <Modal
         visible={modalVisible}
         animationType="slide"
@@ -343,7 +330,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // NEW: modal styles
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.35)',

@@ -26,7 +26,6 @@ export default function JournalScreen({ navigation, user }) {
       const roundsData = await getUserRounds(user.id);
       setRounds(roundsData);
     } catch (error) {
-      console.error('Error loading rounds:', error);
       Alert.alert('Error', 'Failed to load rounds');
     } finally {
       setLoading(false);

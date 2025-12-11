@@ -12,11 +12,13 @@ import CourseDetailScreen from './screens/CourseDetailScreen';
 import JournalScreen from './screens/JournalScreen';
 import LogRoundScreen from './screens/LogRoundScreen';
 import RoundDetailScreen from './screens/RoundDetailScreen';
+import { signOutFromGoogle } from './googleAuth';
 
 const Stack = createStackNavigator();
 
 export default function App() {
   const [user, setUser] = React.useState(null);
+  const navigationRef = React.useRef(null);
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
@@ -26,14 +28,25 @@ export default function App() {
     setUser(userData);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await signOutFromGoogle();
+    } catch (error) {
+    }
+    
     setUser(null);
+    
+    if (navigationRef.current) {
+      navigationRef.current.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
+    }
   };
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator initialRouteName="Home">
-        {/* Home Screen */}
         <Stack.Screen
           name="Home"
           options={({ navigation }) => ({
@@ -51,7 +64,6 @@ export default function App() {
           {props => <HomeScreen {...props} user={user} />}
         </Stack.Screen>
 
-        {/* Search Screen */}
         <Stack.Screen
           name="Search"
           options={({ navigation }) => ({
@@ -77,14 +89,12 @@ export default function App() {
           {props => <SearchScreen {...props} user={user} />}
         </Stack.Screen>
 
-        {/* Log Game Screen */}
         <Stack.Screen
           name="LogGame"
           component={LogGameScreen}
           options={{ title: 'Log a Round' }}
         />
 
-        {/* Auth Screens */}
         <Stack.Screen
           name="LogIn"
           options={{ title: 'Log In' }}
@@ -99,7 +109,6 @@ export default function App() {
           {props => <SignUpScreen {...props} onSignUpSuccess={handleSignUpSuccess} />}
         </Stack.Screen>
 
-        {/* Course Detail Screen */}
         <Stack.Screen
           name="CourseDetail"
           options={{ title: 'Course Details' }}
@@ -107,7 +116,6 @@ export default function App() {
           {props => <CourseDetailScreen {...props} user={user} />}
         </Stack.Screen>
 
-        {/* Journal Screens */}
         <Stack.Screen
           name="Journal"
           options={{ title: 'My Golf Journal' }}

@@ -1,6 +1,5 @@
-import * as SQLite from 'expo-sqlite/next'; // Use new async-first API
+import * as SQLite from 'expo-sqlite';
 
-// Define the Round type *without* the ID, as it's auto-incremented
 export type NewRound = {
   courseId: string;
   courseName: string;
@@ -10,17 +9,12 @@ export type NewRound = {
   notes: string;
 };
 
-// Define the full Round type *with* the ID for retrieval
 export type Round = NewRound & {
   id: number;
 };
 
 let db: SQLite.SQLiteDatabase;
 
-/**
- * Initializes the database, opens a connection, and creates the 'rounds' table
- * if it doesn't already exist.
- */
 export async function initDB(): Promise<boolean> {
   try {
     db = await SQLite.openDatabaseAsync('golfdiary.db');
@@ -36,33 +30,21 @@ export async function initDB(): Promise<boolean> {
         notes TEXT
       );
     `);
-    console.log('Database initialized successfully');
     return true;
   } catch (e) {
-    console.error("Database initialization error: ", e);
     return false;
   }
 }
 
-/**
- * Fetches all rounds from the local database, ordered by date.
- * @returns A promise that resolves to an array of Round objects.
- */
 export async function getRounds(): Promise<Round[]> {
   try {
     const allRows = await db.getAllAsync<Round>('SELECT * FROM rounds ORDER BY date DESC');
     return allRows;
   } catch (e) {
-    console.error("Failed to get rounds: ", e);
-    return []; // Return empty array on error
+    return [];
   }
 }
 
-/**
- * Saves a new round to the local database.
- * @param round The NewRound object to save.
- * @returns A promise that resolves to the SQLite run result.
- */
 export async function saveRound(round: NewRound): Promise<SQLite.SQLiteRunResult> {
   try {
     const result = await db.runAsync(
@@ -74,11 +56,9 @@ export async function saveRound(round: NewRound): Promise<SQLite.SQLiteRunResult
       round.date,
       round.notes
     );
-    console.log('Round saved with ID: ', result.lastInsertRowId);
     return result;
   } catch (e) {
-    console.error("Failed to save round: ", e);
-    throw e; // Re-throw to be caught by the component
+    throw e;
   }
 }
 

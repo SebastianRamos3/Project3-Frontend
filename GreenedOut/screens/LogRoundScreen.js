@@ -14,12 +14,11 @@ import {
 import { createRound, getCourseById } from '../api';
 
 export default function LogRoundScreen({ route, navigation }) {
-  const { courseId, userId } = route.params; // Get userId from navigation params
+  const { courseId, userId } = route.params;
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   
-  // Array of hole scores: [{ par: '', strokes: '' }, ...]
   const [holes, setHoles] = useState(
     Array(18).fill(null).map(() => ({ par: '', strokes: '' }))
   );
@@ -36,7 +35,6 @@ export default function LogRoundScreen({ route, navigation }) {
       const courseData = await getCourseById(courseId);
       setCourse(courseData);
     } catch (error) {
-      console.error('Failed to load course:', error);
       Alert.alert('Error', 'Failed to load course data');
     } finally {
       setLoading(false);
@@ -80,25 +78,23 @@ export default function LogRoundScreen({ route, navigation }) {
     setSubmitting(true);
     try {
       const roundData = {
-        userId: userId, // Use the userId passed from navigation
+        userId: userId,
         courseId: courseId,
-        datePlayed: date, // Backend expects 'datePlayed' not 'date'
+        datePlayed: date,
         notes: notes,
-        holeScores: holes.map((hole, index) => ({ // Backend expects 'holeScores' not 'holes'
+        holeScores: holes.map((hole, index) => ({
           holeNumber: index + 1,
           par: parseInt(hole.par) || 4,
           strokes: parseInt(hole.strokes) || 0,
         })),
       };
 
-      console.log('Submitting round data:', roundData);
       await createRound(roundData);
       
       Alert.alert('Success', 'Round logged successfully!', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
-      console.error('Failed to log round:', error);
       Alert.alert('Error', 'Failed to log round. Please try again.');
     } finally {
       setSubmitting(false);
@@ -119,7 +115,6 @@ export default function LogRoundScreen({ route, navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView>
-        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Text style={styles.backButton}>← Course Details</Text>
@@ -127,7 +122,6 @@ export default function LogRoundScreen({ route, navigation }) {
           <Text style={styles.headerTitle}>Log Round</Text>
         </View>
 
-        {/* Course Info */}
         <View style={styles.courseInfo}>
           <Text style={styles.courseName}>{course?.name}</Text>
           <Text style={styles.courseLocation}>
@@ -136,7 +130,6 @@ export default function LogRoundScreen({ route, navigation }) {
           <Text style={styles.courseHoles}>⛳ {course?.numHoles} Holes</Text>
         </View>
 
-        {/* Date Input */}
         <View style={styles.dateSection}>
           <Text style={styles.sectionTitle}>Date</Text>
           <TextInput
@@ -147,7 +140,6 @@ export default function LogRoundScreen({ route, navigation }) {
           />
         </View>
 
-        {/* Scorecard */}
         <View style={styles.scorecardSection}>
           <Text style={styles.sectionTitle}>Scorecard</Text>
           <Text style={styles.sectionSubtitle}>Enter par and your strokes for each hole</Text>
@@ -185,7 +177,6 @@ export default function LogRoundScreen({ route, navigation }) {
           ))}
         </View>
 
-        {/* Summary */}
         <View style={styles.summarySection}>
           <Text style={styles.summaryTitle}>Summary</Text>
           <View style={styles.summaryRow}>
@@ -204,7 +195,6 @@ export default function LogRoundScreen({ route, navigation }) {
           </View>
         </View>
 
-        {/* Notes */}
         <View style={styles.notesSection}>
           <Text style={styles.sectionTitle}>Notes (Optional)</Text>
           <TextInput
@@ -216,7 +206,6 @@ export default function LogRoundScreen({ route, navigation }) {
           />
         </View>
 
-        {/* Submit Button */}
         <TouchableOpacity
           style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
           onPress={handleSubmit}

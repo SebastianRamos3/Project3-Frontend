@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { getCourseById } from '../api';
 
 export default function CourseDetailsScreen({ route, navigation }) {
-  const { courseId, userId } = route.params; // Get userId from params
+  const { courseId, userId } = route.params;
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +27,6 @@ export default function CourseDetailsScreen({ route, navigation }) {
       const data = await getCourseById(courseId);
       setCourse(data);
     } catch (error) {
-      console.error('Failed to load course:', error);
     } finally {
       setLoading(false);
     }
@@ -70,7 +69,6 @@ export default function CourseDetailsScreen({ route, navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity 
           style={styles.backButton}
@@ -81,7 +79,6 @@ export default function CourseDetailsScreen({ route, navigation }) {
         <Text style={styles.courseName} numberOfLines={2}>{course.name}</Text>
       </View>
 
-      {/* Map */}
       <View style={styles.mapContainer}>
         <MapView
           style={styles.map}
@@ -99,7 +96,6 @@ export default function CourseDetailsScreen({ route, navigation }) {
           />
         </MapView>
         
-        {/* Directions Button Overlay */}
         <TouchableOpacity 
           style={styles.directionsButton}
           onPress={openDirections}
@@ -109,9 +105,7 @@ export default function CourseDetailsScreen({ route, navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* Course Info Cards */}
       <View style={styles.content}>
-        {/* Location Card */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={styles.iconCircle}>
@@ -130,7 +124,6 @@ export default function CourseDetailsScreen({ route, navigation }) {
           )}
         </View>
 
-        {/* Course Info Card */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={styles.iconCircle}>
@@ -154,7 +147,6 @@ export default function CourseDetailsScreen({ route, navigation }) {
           </View>
         </View>
 
-        {/* Description */}
         {course.description && (
           <View style={styles.card}>
             <View style={styles.cardHeader}>
@@ -168,7 +160,6 @@ export default function CourseDetailsScreen({ route, navigation }) {
         )}
       </View>
 
-      {/* Log Round Button */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.logRoundButton}
